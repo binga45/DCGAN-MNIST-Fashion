@@ -12,7 +12,8 @@ import torchvision.utils as vutils
 
 from scipy.interpolate import interp1d
 
-import utils
+from utils.toolbox import *
+from utils.dcgan import *
 
 CUDA = False     # Change to False for CPU training
 VIZ_MODE = 0    # 0: random; 1: interpolation; 2: semantic calculation
@@ -45,7 +46,7 @@ cudnn.benchmark = False      # May train faster but cost more memory
 
 device = torch.device("cuda:0" if CUDA else "cpu")
 netG = Generator()
-netG.load_state_dict(torch.load(os.path.join(OUT_PATH, 'netG_24.pth')))
+netG.load_state_dict(torch.load(os.path.join(OUT_PATH, 'netG_24.pth'),map_location='cpu'))
 netG.to(device)
 
 if VIZ_MODE == 0:
@@ -70,7 +71,7 @@ elif VIZ_MODE == 2:
 
 with torch.no_grad():
     viz_sample = netG(viz_tensor)
-    viz_vector = utils.to_np(viz_tensor).reshape(BATCH_SIZE, Z_DIM)
+    viz_vector = to_np(viz_tensor).reshape(BATCH_SIZE, Z_DIM)
     cur_time = datetime.now().strftime("%Y%m%d-%H%M%S")
     np.savetxt('vec_{}.txt'.format(cur_time), viz_vector)
     vutils.save_image(viz_sample, 'img_{}.png'.format(cur_time), nrow=10, normalize=True)
